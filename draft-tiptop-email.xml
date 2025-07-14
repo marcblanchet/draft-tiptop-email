@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-model href="rfc7991bis.rnc"?>
+<?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?>
+<!DOCTYPE rfc [
+<!ENTITY nbsp "&#160;">
+<!ENTITY zwsp "&#8203;">
+<!ENTITY nbhy "&#8209;">
+<!ENTITY wj "&#8288;">
+]>
+<rfc xmlns:xi="http://www.w3.org/2001/XInclude" category="info" docName="draft-many-tiptop-email-00" ipr="trust200902" obsoletes="" updates="" submissionType="IETF" xml:lang="en" version="3">
+  <front>
+    <title abbrev="Email in Deep Space">Deploying and Using Email in Deep Space</title>
+    <seriesInfo name="Internet-Draft" value="draft-many-tiptop-email-00"/>
+    <author fullname="Marc Blanchet" initials="MB">
+      <organization>Viagenie</organization>
+      <address>
+        <postal>
+          <country>Canada</country>
+        </postal>
+        <email>marc.blanchet@viagenie.ca</email>
+      </address>
+    </author>
+    <area>Internet</area>
+    <workgroup>Internet Engineering Task Force</workgroup>
+    <keyword>dtn</keyword>
+    <keyword>email</keyword>
+    <keyword>space</keyword>
+    <keyword>deep space</keyword>
+    <keyword>smtp</keyword>
+    <keyword>jmap</keyword>
+    <abstract>
+      <t>This document lists operational methods to deploy and use email in deep space.</t>
+    </abstract>
+  </front>
+  <middle>
+    <section>
+      <name>Introduction</name>
+      <t>Deep space communications involve long delays (e.g. Earth to Mars is 4-22 minutes) and intermittent communications, because of orbital dynamics.</t>
+      <t>IP packet storage by forwarders facing intermittent links. So packets may take a long time to arrive at destination, such as minutes, hours, days, weeks. </t>
+      <t>Internets on celestial bodies; interconnected (if not, trafic goes back to Earth). deep space links</t>
+      <section anchor="requirements">
+        <name>Requirements Language</name>
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL",
+          "SHALL NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT
+          RECOMMENDED", "MAY", and "OPTIONAL" in this document are to be
+          interpreted as described in BCP 14 <xref target="RFC2119"/>
+          <xref target="RFC8174"/> when, and only when, they appear in
+          all capitals, as shown here.</t>
+      </section>
+      <section>
+        <name>Document and Discussion Locations</name>
+        <t>The source of this document is located at https://github.com/marcblanchet/draft-tiptop-email. Comments or changes are welcomed by filing a PR or an issue against that repository.</t>
+        <t>This subject should be discussed on the IETF tiptop working group mailing list.</t>
+      </section>
+    </section>
+    <section>
+        <name>Assessment</name>
+        <t>SMTP/IMAP over TCP.</t>
+        <t>But JMAP is REST, so can run over HTTP3/QUIC with QUIC properly profiled<xref target="I-D.many-tiptop-quic-profile"/></t>
+        <t>DNS <xref target="I-D.many-tiptop-dns"/></t>
+    </section>
+    <section>
+      <name>Deployment Scenario</name>
+      <t>SMTP gateway from Internet, act as a MTA, then uses JMAP for next hop to the other gateway on the celestial body.
+      </t>
+      <t>flow diagram with internet, gateway, deepspace orbiter, gateway on Moon/Mars, internet on Moon/Mars</t>
+      <section>
+        <name></name>
+        <t></t>
+      </section>
+      <section>
+        <name></name>
+        <t></t>
+      </section>
+      <section>
+          <name></name>
+          <t></t>
+      </section>
+    </section>
+    <section>
+      <name>DNS Considerations</name>
+      <t>assumes a local DNS server cached with useful records on the celestial body network</t>
+      <t>headers such as Received and others should not be looked up as those </t>
+    </section>
+    <section>
+      <name>Unwanted Email Considerations</name>
+      <t>lookup from space for databases on Earth is not recommended.</t>
+      <t>methods using data in headers that need to be looked up on (Earth) Internet should not be done in space</t>
+      <t>to minimize use of deep space bandwidth which is scarce, strong anti-spamming should be done before leaving Earth.</t>
+    </section>
+    <section anchor="IANA">
+      <name>IANA Considerations</name>
+      <t>This memo includes no request to IANA.</t>
+    </section>
+    <section anchor="Security">
+      <name>Security Considerations</name>
+      <t>TBD</t>
+    </section>
+  </middle>
+  <back>
+    <references>
+      <name>References</name>
+      <references>
+        <name>Normative References</name>
+        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.2119.xml"/>
+        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8174.xml"/>
+      </references>
+      <references>
+        <name>Informative References</name>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.ietf-tiptop-usecase.xml"/>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-tiptop-quic-profile.xml"/>
+      </references>
+    </references>
+    <section anchor="Acknowledgements" numbered="false">
+      <name>Acknowledgements</name>
+      <t>TBD</t>
+    </section>
+  </back>
+</rfc>
