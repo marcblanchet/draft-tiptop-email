@@ -53,25 +53,25 @@
     </section>
     <section>
         <name>Deploying Email in Deep Space Assessment</name>
-        <t>To send an email, the SMTP protocol is used over TCP. Prior to sending, the IP address of the recipient server is found by quering the MX records and then the IP address records (A, AAAA) of the MX returned values. SMTP goes through a series of messages between the client and the server to exchange capabilities, then sender and recipient email addresses and then content of the email, which results to multiple RTT to send the whole email.</t>
-        <t>To get its email, a user uses IMAP or POP, both over TCP.</t>
-        <t>A more recent email protocol is JMAP <xref target="RFC8621"/> which uses REST over HTTP. This could be run over HTTP3/QUIC with QUIC properly profiled<xref target="I-D.many-tiptop-quic-profile"/>.</t>
+        <t>On Internet, to send an email, the SMTP protocol is used over TCP. Prior to sending, the IP address of the recipient server is found by quering the MX records and then the IP address records (A, AAAA) of the MX returned values. SMTP goes through a series of messages between the client and the server to exchange capabilities, sender and recipient email addresses and then content of the email, which results to multiple RTT to send the whole email. To get its email, a user uses IMAP or POP, both over TCP. Given TCP is not appropriate for deep space links<xref target="I-D.many-tiptop-usecase"/>, another solution has to be found.</t>
+        <t>A more recent email protocol is JMAP <xref target="RFC8621"/> which uses REST over HTTP. In deep space, JMAP could be run over HTTP3/QUIC with QUIC properly profiled<xref target="I-D.many-tiptop-quic-profile"/>.</t>
         <t>DNS insfrastructure need to be properly deployed and setup to avoid DNS requests through deep space links<xref target="I-D.many-tiptop-dns"/>.</t>
     </section>
     <section>
       <name>Deployment Recommendations</name>
-      <t>On Earth, current SMTP infrastructure is used. For email to be forwarded to space, an Earth gateway, as the last hop for email on Earth, should receive those emails by SMTP, looks up the MX and IP address records to find the IP address of the gateway on the celestial body surface network, converts the email to Batch SMTP MIME object <xref target="RFC2442"/>, sends using REST/HTTP3/QUIC to the corresponding gateway on the celestial body surface network.</t>
-      <t>Reversly, an email sent from a celestial body surface network would be forwarded to the SMTP gateway on that network. The SMTP gateway then looks up the MX and IP address records to find the IP address of the gateway on Earth, converts the email to Batch SMTP MIME object <xref target="RFC2442"/>, sends using REST/HTTP3/QUIC to the corresponding gateway on Earth.</t>
+      <t>On Earth, current SMTP infrastructure is used. For email to be forwarded to space, an Earth mail gateway, as the last hop for email on Earth, receives emails by SMTP, converts the email to Batch SMTP MIME object <xref target="RFC2442"/>, sends using REST/HTTP3/QUIC to the corresponding gateway on the celestial body surface network. In this scenario, given the low number of celestial body networks, the use of DNS lookup of MX and IP address records may be avoided by having a static map of destination domains to HTTP endpoints, configured on the Earth mail gateway.</t>
+      <t>Reversely, an email sent from a celestial body surface network would be forwarded to the SMTP gateway on that network. The SMTP gateway converts the email to Batch SMTP MIME object <xref target="RFC2442"/>, sends using REST/HTTP3/QUIC to the corresponding gateway on Earth. The Earth endpoint may be statically configured on the celestial body gateway.</t>
     </section>
     <section>
       <name>DNS Considerations</name>
-      <t>For emails sending from Earth, the lookedup MX records and their corresponding IP address records should point to the gateway on the target celestial body network. Those records should be located or cached on the DNS infrastructure on Earth.</t>
-      <t>Similarly, it is assumed that on the celestial body network, there will be a local DNS infrastructure that has a cache of the related records, as discussed in <xref target="I-D.many-tiptop-dns"/>.</t>
-      <t>Given that a celestial body network MTA can not lookup for all possible names, the names in email headers such as Received and others should not be looked up.</t>
+      <t>For emails sent from Earth, if the DNS is used, the looked up MX records and their corresponding IP address records should point to the gateway on the target celestial body network. Those records should be located or cached on the DNS infrastructure on Earth.</t>
+      <t>Similarly, if the DNS is used, it is assumed that on the celestial body network, there will be a local DNS infrastructure that has a cache of the related records, as discussed in <xref target="I-D.many-tiptop-dns"/>.</t>
+      <t>Mail headers such as Received and others contain domain names. It is recommended to not lookup those names on the celestial body gateway.</t>
     </section>
     <section>
-      <name>Unwanted Email Considerations</name>
-      <t>To minimize use of deep space bandwidth which is scarce, strong anti-spamming should be done before leaving Earth. As discussed in the previous section, an anti-spamming system on the celestial body network should not rely on any database or DNS lookup located on Earth.</t>
+        <name>Unwanted Email Considerations</name>
+        <t>To minimize use of scarce deep space bandwidth, strong anti-spamming should be done before leaving Earth.</t>
+        <t>An anti-spamming system on the celestial body network should not rely on any database or DNS lookup located on Earth.</t>
     </section>
     <section anchor="IANA">
       <name>IANA Considerations</name>
