@@ -35,7 +35,7 @@
   <middle>
     <section>
       <name>Introduction</name>
-      <t>Deep space communications involve long delays (e.g. Earth to Mars is 4-22 minutes) and intermittent communications, because of orbital dynamics. As discussed in <xref target="I-D.many-tiptop-ip-architecture"/>, IP packets are stored by forwarders facing intermittent links, instead of dropping them. So packets may take a long time to arrive at destination, such as minutes, hours, days, weeks. The QUIC transport protocol, profiled for space delays, is used for reliable transport.</t>
+      <t>Deep space communications involve long delays (e.g. Earth to Mars is 4-22 minutes) and intermittent communications, because of orbital dynamics. As discussed in <xref target="I-D.many-tiptop-ip-architecture"/>, IP packets are stored by forwarders facing intermittent links, instead of dropping them. So packets travelling from Earth to a celestial body surface network may take a long time to arrive at destination, such as minutes, hours, days, weeks. The QUIC transport protocol, profiled for space delays, is used for reliable transport.</t>
       <section anchor="requirements">
         <name>Requirements Language</name>
         <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL",
@@ -52,21 +52,50 @@
       </section>
     </section>
     <section>
-        <name>Deploying Email in Deep Space Assessment</name>
-        <t>On Internet, to send an email, the SMTP protocol is used over TCP. Prior to sending, the IP address of the recipient server is found by quering the MX records and then the IP address records (A, AAAA) of the MX returned values. SMTP goes through a series of messages between the client and the server to exchange capabilities, sender and recipient email addresses and then content of the email, which results to multiple RTT to send the whole email. To get its email, a user uses IMAP or POP, both over TCP. Given TCP is not appropriate for deep space links<xref target="I-D.many-tiptop-usecase"/>, another solution has to be found.</t>
-        <t>A more recent email protocol is JMAP <xref target="RFC8621"/> which uses REST over HTTP. In deep space, JMAP could be run over HTTP3/QUIC with QUIC properly profiled<xref target="I-D.many-tiptop-quic-profile"/>.</t>
-        <t>DNS insfrastructure need to be properly deployed and setup to avoid DNS requests through deep space links<xref target="I-D.many-tiptop-dns"/>.</t>
+        <name>Assessment</name>
+        <t>On Internet, to forward an email from the sender to the receipient server, the SMTP protocol is used over TCP. Prior to sending, the IP address of the recipient server is found by quering the MX records and then the IP address records (A, AAAA) of the MX returned values. SMTP goes through a series of messages between the client and the server to exchange capabilities, sender and recipient email addresses and then content of the email. These multiple exchanges result to multiple RTT to send the whole email. To get its email, a user uses IMAP or POP, both over TCP, or a web interface. Given TCP is not appropriate for deep space links<xref target="I-D.many-tiptop-usecase"/>, another email forwarding solution has to be found using a transport protocol suited for deep space, such as a space profiled QUIC<xref target="I-D.many-tiptop-quic-profile"/>.</t>
+        <t>A more recent email protocol is JMAP <xref target="RFC8621"/> which uses REST over HTTP. In deep space, JMAP could be run over HTTP3 over a space profiled QUIC.</t>
+        <t>DNS insfrastructure need to be properly deployed and setup to avoid DNS requests through deep space links as discussed in <xref target="I-D.many-tiptop-dns"/>.</t>
     </section>
     <section>
       <name>Deployment Recommendations</name>
-      <t>On Earth, current SMTP infrastructure is used. For email to be forwarded to space, an Earth mail gateway, as the last hop for email on Earth, receives emails by SMTP, converts the email to Batch SMTP MIME object <xref target="RFC2442"/>, sends using REST/HTTP3/QUIC to the corresponding gateway on the celestial body surface network. In this scenario, given the low number of celestial body networks, the use of DNS lookup of MX and IP address records may be avoided by having a static map of destination domains to HTTP endpoints, configured on the Earth mail gateway.</t>
-      <t>Reversely, an email sent from a celestial body surface network would be forwarded to the SMTP gateway on that network. The SMTP gateway converts the email to Batch SMTP MIME object <xref target="RFC2442"/>, sends using REST/HTTP3/QUIC to the corresponding gateway on Earth. The Earth endpoint may be statically configured on the celestial body gateway.</t>
+      <t>Since TCP is not appropriate, HTTP over QUIC is used to transfer email over deep space.</t>
+      <t>On Earth, current SMTP infrastructure is used. For email to be forwarded from Earth to deep space, the following steps SHOULD be taken:</t>
+          <ul>
+              <li>an Earth mail gateway, as the last hop for email on Earth, receives email by SMTP</li>
+              <li>the gateway converts the email to Batch SMTP (BSMTP) MIME object <xref target="RFC2442"/></li>
+              <li>the gateway sends the BSMTP object using HTTP3/QUIC to the corresponding gateway on the celestial body surface network</li>
+              <li>the celestial body email gateway receives the BSMTP, disassemble it and then forwards it using SMTP to the final mail server on the celestial body network.</li>
+          </ul>
+      <t>Reversely, an email sent from a celestial body surface network to Earth SHOULD follow these steps:</t>
+          <ul>
+              <li>email is forwarded to the SMTP gateway on that network</li>
+              <li>The SMTP gateway converts the email to Batch SMTP MIME object <xref target="RFC2442"/></li>
+              <li>The gateway sends it using REST/HTTP3/QUIC to the corresponding gateway on Earth.</li>
+          </ul>
+          <t>The Earth REST endpoint may be statically configured on the celestial body gateway.</t>
+    </section>
+    <section>
+        <name>Discovering the Next Mail Server</name>
+        <t>Given the low number of celestial body networks, the use of DNS lookup may be avoided by having a static map of destination domains to HTTP endpoints, configured on the Earth mail gateway.</t>
+        <t>Given the use of HTTP which requires specifying a full URI, the DNS MX resource record (RR) only provides the hostname of the mail server, not the full URI.</t>
+        <t>The DNS URI resource record<xref target="RFC7553"/> SHOULD be used instead of MX rRR. The URI RR provides similar facility of the MX or SRV records enabling specifying multiple equivalent mail servers with weights, as well as multiple servers with different priorities. The service name used in the query should be "_bsmtp._https". As discussed in <xref target="IANA"/>, the "bsmtp" service name is registered in IANA service names registry.</t>
+        <t>For example, the last email hop on Earth receiving an SMTP message to be forwarded to user1@moon.spaceagency.int have to find the URI and IP address of the email server on Moon. It queries the DNS for the URI RR of "_bsmtp._http.moon.spaceagency.in". The DNS response is as follows:</t>
+        <ul>
+            <li>_bsmtp._https IN URI 10 1 "https://moonmailgateway1.spaceagency.int/inboundmail"</li>
+            <li>_bsmtp._https IN URI 20 1 "https://moonmailgateway2.spaceagency.int/inboundmail"</li>
+        </ul>
+        <t>The URI RRs received above indicate with the highest priority, noted with the lowest priority number (10 instead of 20) that the host moonmailgateway1.spaceagency.int should be contacted first for email delivery and if not available, then the next priority will be used (moonmailgateway2.spaceagency.int). The Earth email server will then query the DNS for IP address records (A and AAAA) of moonmailgateway1.spaceagency.int. When received, it will connect moonmailgateway1.spaceagency.int using HTTP3 over QUIC at the full URI received previously "https://moonmailgateway1.spaceagency.int/inboundmail".</t>
+    </section>
+    <section>
+        <name>Transport Considerations</name>
+        <t>As noted in <xref target="I-D.many-tiptop-ip-architecture"/>, the transport of BSMTP email over HTTP on deep space links should be accomplished over QUIC with proper transport configuration, as specified in <xref target="I-D.many-tiptop-quic-profile"/>.</t>
     </section>
     <section>
       <name>DNS Considerations</name>
-      <t>For emails sent from Earth, if the DNS is used, the looked up MX records and their corresponding IP address records should point to the gateway on the target celestial body network. Those records should be located or cached on the DNS infrastructure on Earth.</t>
-      <t>Similarly, if the DNS is used, it is assumed that on the celestial body network, there will be a local DNS infrastructure that has a cache of the related records, as discussed in <xref target="I-D.many-tiptop-dns"/>.</t>
-      <t>Mail headers such as Received and others contain domain names. It is recommended to not lookup those names on the celestial body gateway.</t>
+      <t>For emails sent from Earth, if the DNS is used, the looked up URI records and their corresponding IP address records should point to the gateway on the target celestial body network. Those records should be located or cached on the DNS infrastructure on Earth.</t>
+      <t>Similarly, if the DNS is used on the celestial body network, it is assumed that there will be a local DNS infrastructure that has a cache of the related records, as discussed in <xref target="I-D.many-tiptop-dns"/>.</t>
+      <t>Mail headers such as Received and others contain domain names of the whole email path, which may contain various hosts on Internet. Lookup of those names on the celestial body network SHOULD NOT be done as the local cache cannot contain all the possible mail server names on Internet.</t>
     </section>
     <section>
         <name>Unwanted Email Considerations</name>
@@ -75,7 +104,7 @@
     </section>
     <section anchor="IANA">
       <name>IANA Considerations</name>
-      <t>This memo includes no request to IANA.</t>
+      <t>By this specification, the "bsmtp" service name, referring to <xref target="RFC2442"/> BSMTP specification, is registered as a service name under RFC6335 policy.</t>
     </section>
     <section anchor="Security">
       <name>Security Considerations</name>
@@ -88,12 +117,14 @@
       <references>
         <name>Normative References</name>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.2119.xml"/>
-        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.2442.xml"/>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8174.xml"/>
+        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.2442.xml"/>
+        <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.7553.xml"/>
       </references>
       <references>
         <name>Informative References</name>
         <xi:include href="https://www.rfc-editor.org/refs/bibxml/reference.RFC.8621.xml"/>
+        <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-tiptop-usecase.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-tiptop-ip-architecture.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-tiptop-dns.xml"/>
         <xi:include href="https://bib.ietf.org/public/rfc/bibxml3/reference.I-D.many-tiptop-quic-profile.xml"/>
@@ -101,7 +132,7 @@
     </references>
     <section anchor="Acknowledgements" numbered="false">
       <name>Acknowledgements</name>
-      <t>Initial discussions on this subject were with John Levine and Pete Resnick.</t>
+      <t>Initial discussions on this subject were with John Levine who helped a lot in ironing out many aspects and Pete Resnick.</t>
     </section>
   </back>
 </rfc>
