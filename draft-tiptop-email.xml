@@ -71,9 +71,9 @@
           <ul>
               <li>email is forwarded to the SMTP gateway on that network</li>
               <li>The SMTP gateway converts the email to Batch SMTP MIME object <xref target="RFC2442"/></li>
-              <li>The gateway sends it using REST/HTTP3/QUIC to the corresponding gateway on Earth.</li>
+              <li>The gateway sends it using HTTP3/QUIC to the corresponding gateway on Earth.</li>
           </ul>
-          <t>The Earth REST endpoint may be statically configured on the celestial body gateway.</t>
+          <t>The Earth HTTP endpoint may be statically configured on the celestial body gateway.</t>
     </section>
     <section>
         <name>Discovering the Next Mail Server</name>
