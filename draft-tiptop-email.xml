@@ -36,6 +36,7 @@
     <section>
       <name>Introduction</name>
       <t>Deep space communications involve long delays (e.g. Earth to Mars is 4-22 minutes) and intermittent communications, because of orbital dynamics. As discussed in <xref target="I-D.many-tiptop-ip-architecture"/>, IP packets are stored by forwarders facing intermittent links, instead of dropping them. So packets travelling from Earth to a celestial body surface network may take a long time to arrive at destination, such as minutes, hours, days, weeks. The QUIC transport protocol, profiled for space delays, is used for reliable transport.</t>
+      <t>Email protocols such as SMTP and IMAP use TCP as transport, which is not suitable for space. Moreover, the chatiness of SMTP, which results in multiple round trips to send an email make it not suitable over very long delays. This document describes a framework to deploy and use email in deep space.</t>
       <section anchor="requirements">
         <name>Requirements Language</name>
         <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL",
