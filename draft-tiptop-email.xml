@@ -20,6 +20,14 @@
         <email>marc.blanchet@viagenie.ca</email>
       </address>
     </author>
+    <author fullname="Pete Resnick" initials="PR">
+      <address>
+        <postal>
+          <country>USA</country>
+        </postal>
+        <email>resnick@episteme.net</email>
+      </address>
+    </author>
     <area>Internet</area>
     <workgroup>Internet Engineering Task Force</workgroup>
     <keyword>dtn</keyword>
